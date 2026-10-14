@@ -1,0 +1,565 @@
+===========================================================================================
+Q1.  Create a Git repository, commit changes to it, and publish the changes using Git Bash.
+===========================================================================================
+Install Git and open Git Bash.
+➢ Create a new repository on GitHub. 
+➢ Copy the repository URL.
+➢ Open Git Bash and navigate to the desired folder. 
+➢ Clone the repository using: - git clone <repository-url> 
+➢ Navigate into the cloned repository: - cd <repository-name> 
+➢ Create or modify a file in the repository. 
+➢ Check the changes: - git status 
+➢ Stage the changes: - git add . 
+➢ Commit the changes: - git commit -m "Updated files" 
+➢ Push the changes to GitHub: - git push origin main 
+➢ Open the GitHub repository and verify that the changes are published. 
+======================================================================================================================================
+Q2.  Create a Firebase Realtime Database for a Student Management System and explore the features of Firebase Realtime Database.
+======================================================================================================================================
+ STARTING
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
+
+ENDING
+
+const db = getDatabase(app);
+
+window.addStudent = function() {
+    let roll = document.getElementById("roll").value.trim();
+    let name = document.getElementById("name").value.trim();
+
+    if (roll === "" || name === "") {
+        alert("Enter roll number and student name");
+        return;
+    }
+
+    set(ref(db, "students/" + roll), {
+        rollNumber: roll,
+        name: name
+    })
+    .then(() => {
+        alert("Student Added Successfully");
+    })
+    .catch(error => {
+        alert("Error: " + error.message);
+    });
+};
+# index.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Management System</title>
+</head>
+<body>
+    <h2>Student Management System</h2>
+
+    <input id="roll" placeholder="Roll Number">
+    <input id="name" placeholder="Student Name">
+
+    <button onclick="addStudent()">Add Student</button>
+
+    <script type="module" src="p21.js"></script>
+</body>
+</html>
+===========================================================================
+Q3. 3.  Explore various Node.js modules, such as os, http, and others.
+===========================================================================
+#os.js
+const os = require('os');
+
+console.log("Operating System:", os.platform());
+console.log("Architecture:", os.arch());
+console.log("CPU Information:", os.cpus());
+console.log("Free Memory:", os.freemem());
+console.log("Total Memory:", os.totalmem());
+console.log("Home Directory:", os.homedir());
+console.log("Hostname:", os.hostname());
+
+#http.js
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end('<h1>Hello from Node.js HTTP Server</h1>');
+});
+
+server.listen(3000, () => {
+    console.log('Server running at http://localhost:3000/');
+});
+
+#fs.js
+const fs = require('fs');
+
+fs.writeFileSync('sample.txt', 'Hello Node.js');
+
+console.log(fs.readFileSync('sample.txt', 'utf8'));
+
+fs.appendFileSync('sample.txt', '\nWelcome');
+
+console.log("File operations completed");
+
+#path.js
+const path = require('path');
+
+const filePath = '/home/user/sample.txt';
+
+console.log("Directory:", path.dirname(filePath));
+console.log("File Name:", path.basename(filePath));
+console.log("Extension:", path.extname(filePath));
+console.log("Joined Path:", path.join('folder', 'sample.txt'));
+
+#event.js
+
+const EventEmitter = require('events');
+
+const event = new EventEmitter();
+
+event.on('greet', () => {
+    console.log("Hello! Event occurred");
+});
+
+event.emit('greet');
+
+#url.js
+
+const url = require('url');
+
+const address = 'https://example.com:8080/student?name=Ravi&age=20';
+
+const parsedUrl = new URL(address);
+
+console.log("Protocol:", parsedUrl.protocol);
+console.log("Host:", parsedUrl.host);
+console.log("Hostname:", parsedUrl.hostname);
+console.log("Path:", parsedUrl.pathname);
+console.log("Query:", parsedUrl.search);
+console.log("Name:", parsedUrl.searchParams.get('name'));
+=======================================================================================================================================
+Q4.  Create a REST API and perform various CRUD operations on it,
+Q5.Develop an Express web application that interacts with a service to perform CRUD operations on student data. Use Postman for testing.
+=========================================================================================================================================
+//4 and 5
+
+//npm init -y
+//npm install express
+//node app.js
+
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+let students = [
+    { id: 1, name: "Ravi" },
+    { id: 2, name: "Priya" }
+];
+
+// Read students
+app.get('/students', (req, res) => {
+    res.json(students);
+});
+
+// Create student
+app.post('/students', (req, res) => {
+    students.push(req.body);
+    res.send("Student added successfully");
+});
+
+// Update student
+app.put('/students/:id', (req, res) => {
+    const student = students.find(s => s.id == req.params.id);
+
+    if (student) {
+        student.name = req.body.name;
+        res.send("Student updated successfully");
+    } else {
+        res.send("Student not found");
+    }
+});
+
+// Delete student
+app.delete('/students/:id', (req, res) => {
+    students = students.filter(s => s.id != req.params.id);
+    res.send("Student deleted successfully");
+});
+
+app.listen(3000, () => {
+    console.log("Server running on port 3000");
+});
+
+===========================================================================================
+Q6.  Create authorized endpoints for the above application using JWT (JSON Web Token).
+===========================================================================================
+const express = require('express');
+const jwt = require('jsonwebtoken');
+
+const app = express();
+app.use(express.json());
+
+const secret = 'mysecret';
+
+// Login and generate token
+app.post('/login', (req, res) => {
+    const token = jwt.sign(
+        { username: req.body.username },
+        secret
+    );
+    res.json({ token });
+});
+
+// Verify token
+function verifyToken(req, res, next) {
+    const token = req.headers['authorization'];
+
+    if (!token)
+        return res.send("Access denied");
+
+    try {
+        req.user = jwt.verify(token, secret);
+        next();
+    } catch (err) {
+        res.send("Invalid token");
+    }
+}
+
+// Protected endpoint
+app.get('/students', verifyToken, (req, res) => {
+    res.json([
+        { id: 1, name: "Ravi" },
+        { id: 2, name: "Priya" }
+    ]);
+});
+
+app.listen(3000, () => {
+    console.log("Server running on port 3000");
+});
+
+//Install packages - npm install express jsonwebtoken
+
+==================================================
+Q7. Create a React application to display "Hello World".
+==================================================
+
+App.js
+
+function App() {
+  return (
+    <div>
+      <h1>Hello World</h1>
+    </div>
+  );
+}
+
+export default App;
+
+
+==================================================
+Q8. Display the current system date and time in React.
+==================================================
+
+App.js
+
+import React from 'react';
+
+function App() {
+  const currentDate = new Date();
+
+  return (
+    <div>
+      <h1>Current System Date and Time</h1>
+      <p>Date: {currentDate.toLocaleDateString()}</p>
+      <p>Time: {currentDate.toLocaleTimeString()}</p>
+    </div>
+  );
+}
+
+export default App;
+
+
+==================================================
+Q9. Create functional and class components and pass data using props.
+==================================================
+
+App.js
+
+import React from 'react';
+
+function FunctionComponent(props) {
+  return (
+    <div>
+      <h2>Functional Component</h2>
+      <p>Name: {props.name}</p>
+      <p>Age: {props.age}</p>
+    </div>
+  );
+}
+
+class ClassComponent extends React.Component {
+  render() {
+    return (
+      <div>
+        <h2>Class Component</h2>
+        <p>Name: {this.props.name}</p>
+        <p>Age: {this.props.age}</p>
+      </div>
+    );
+  }
+}
+
+function App() {
+  return (
+    <div>
+      <FunctionComponent name="Ravi" age={20} />
+      <ClassComponent name="Priya" age={21} />
+    </div>
+  );
+}
+
+export default App;
+
+
+==================================================
+Q10. Create a class component that stores and displays the current date using state.
+==================================================
+
+App.js
+
+import React from 'react';
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      date: new Date().toLocaleDateString()
+    };
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>Current Date</h1>
+        <p>{this.state.date}</p>
+      </div>
+    );
+  }
+}
+
+export default App;
+
+
+==================================================
+Q11. Demonstrate React class component lifecycle methods.
+==================================================
+
+App.js
+
+import React from 'react';
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+    console.log('Constructor called');
+  }
+
+  componentDidMount() {
+    console.log('Component Mounted');
+  }
+
+  componentDidUpdate() {
+    console.log('Component Updated');
+  }
+
+  componentWillUnmount() {
+    console.log('Component Will Unmount');
+  }
+
+  render() {
+    console.log('Render called');
+
+    return (
+      <div>
+        <h1>Component Lifecycle</h1>
+        <h2>Count: {this.state.count}</h2>
+
+        <button
+          onClick={() =>
+            this.setState({
+              count: this.state.count + 1
+            })
+          }
+        >
+          Update Count
+        </button>
+      </div>
+    );
+  }
+}
+
+export default App;
+
+
+==================================================
+Q12. Create buttons to display date/time and a goodbye message. Demonstrate event handling and binding.
+==================================================
+
+App.js
+
+import React from 'react';
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { message: '' };
+    this.showDate = this.showDate.bind(this);
+  }
+
+  showDate() {
+    this.setState({ message: new Date() });
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>React Event Handling</h1>
+
+        <button onClick={this.showDate}>
+          Show Date and Time
+        </button>
+
+        <button
+          onClick={() =>
+            this.setState({ message: 'Good Bye' })
+          }
+        >
+          Say Goodbye
+        </button>
+
+        <h2>{this.state.message.toString()}</h2>
+      </div>
+    );
+  }
+}
+
+export default App;
+
+
+==================================================
+Q13. Build a React calculator with number/operator buttons, Clear, and Equals.
+==================================================
+
+App.js
+
+import React, { useState } from 'react';
+import './App.css';
+
+function App() {
+  const [display, Setdisplay] = useState('');
+
+  function show(value) {
+    Setdisplay(display + value);
+  }
+
+  function calculate() {
+    try {
+      Setdisplay(String(eval(display)));
+    } catch {
+      Setdisplay('Error');
+    }
+  }
+
+  function clear() {
+    Setdisplay('');
+  }
+
+  return (
+    <div className="container">
+      <h1>React Calculator !!</h1>
+
+      <input type="text" value={display} readOnly />
+
+      <div className="buttons">
+        <button onClick={clear}>C</button>
+        <button onClick={() => show('9')}>9</button>
+        <button onClick={() => show('8')}>8</button>
+        <button onClick={() => show('7')}>7</button>
+        <button onClick={() => show('6')}>6</button>
+        <button onClick={() => show('5')}>5</button>
+        <button onClick={() => show('4')}>4</button>
+        <button onClick={() => show('3')}>3</button>
+        <button onClick={() => show('2')}>2</button>
+        <button onClick={() => show('1')}>1</button>
+        <button onClick={() => show('0')}>0</button>
+        <button onClick={() => show('+')}>+</button>
+        <button onClick={() => show('-')}>-</button>
+        <button onClick={() => show('*')}>*</button>
+        <button onClick={() => show('/')}>/</button>
+        <button onClick={calculate}>=</button>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+
+==================================================
+Q14. Create a React registration page using forms implemented as controlled components.
+==================================================
+
+App.js
+
+import { useState } from 'react';
+
+function App() {
+  const [name, Setname] = useState('');
+  const [emaill, SetEmail] = useState('');
+  const [pwd, SetPwd] = useState('');
+
+  function handlesubmit(e) {
+    e.preventDefault();
+    alert('Registered Successfullyy!!');
+  }
+
+  return (
+    <div>
+      <h1>Registration Page</h1>
+
+      <form onSubmit={handlesubmit}>
+        <label>Name:</label>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => Setname(e.target.value)}
+          required
+        />
+
+        <label>Email:</label>
+        <input
+          type="email"
+          placeholder="Email"
+          value={emaill}
+          onChange={(e) => SetEmail(e.target.value)}
+          required
+        />
+
+        <label>Password:</label>
+        <input
+          type="password"
+          placeholder="Password"
+          value={pwd}
+          onChange={(e) => SetPwd(e.target.value)}
+          required
+        />
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  );
+}
+
+export default App;
